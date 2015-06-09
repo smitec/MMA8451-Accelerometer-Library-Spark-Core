@@ -1,21 +1,21 @@
 /******************************************************************************
-MMA8452Q_Basic.ino
-SFE_MMA8452Q Library Basic Example Sketch
+MMA8451Q_Basic.ino
+SFE_MMA8451Q Library Basic Example Sketch
 Jim Lindblom @ SparkFun Electronics
 Original Creation Date: June 3, 2014
 https://github.com/sparkfun/MMA8452_Accelerometer
 
-This sketch uses the SFE_MMA8452Q library to initialize the
+This sketch uses the SFE_MMA8451Q library to initialize the
 accelerometer, and stream values from it.
 
 Hardware hookup:
-  Arduino --------------- MMA8452Q Breakout
+  Arduino --------------- MMA8451Q Breakout
     3.3V  ---------------     3.3V
     GND   ---------------     GND
   SDA (A4) --\/330 Ohm\/--    SDA
   SCL (A5) --\/330 Ohm\/--    SCL
 
-The MMA8452Q is a 3.3V max sensor, so you'll need to do some 
+The MMA8451Q is a 3.3V max sensor, so you'll need to do some 
 level-shifting between the Arduino and the breakout. Series
 resistors on the SDA and SCL lines should do the trick.
 
@@ -29,22 +29,22 @@ local, and you've found our code helpful, please buy us a round!
 Distributed as-is; no warranty is given.
 ******************************************************************************/
 /* #include <Wire.h> */ // Not needed for Spark Core
-#include "MMA8452-Accelerometer-Library-Spark-Core/MMA8452-Accelerometer-Library-Spark-Core.h" // Includes the SFE_MMA8452Q library
+#include "MMA8451-Accelerometer-Library-Spark-Core/MMA8451-Accelerometer-Library-Spark-Core.h" // Includes the SFE_MMA8451Q library
 
-// Begin using the library by creating an instance of the MMA8452Q
+// Begin using the library by creating an instance of the MMA8451Q
 //  class. We'll call it "accel". That's what we'll reference from
 //  here on out.
-MMA8452Q accel;
+MMA8451Q accel;
 
 // The setup function simply starts serial and initializes the
 //  accelerometer.
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("MMA8452Q Test Code!");
+  Serial.println("MMA8451Q Test Code!");
   
   // Choose your adventure! There are a few options when it comes
-  // to initializing the MMA8452Q:
+  // to initializing the MMA8451Q:
   //  1. Default init. This will set the accelerometer up
   //     with a full-scale range of +/-2g, and an output data rate
   //     of 800 Hz (fastest).
@@ -85,7 +85,7 @@ void loop()
     //printAccels(); // Uncomment to print digital readings
     
     // The library also supports the portrait/landscape detection
-    //  of the MMA8452Q. Check out this function declaration for
+    //  of the MMA8451Q. Check out this function declaration for
     //  an example of how to use that.
     printOrientation();
     

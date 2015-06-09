@@ -4,11 +4,12 @@ MMA8452-Accelerometer-Library-Spark-Core Library Source File
 Jim Lindblom @ SparkFun Electronics
 Original Creation Date: June 3, 2014
 Modified by Dan Dawson: December 19, 2014
+Modified by Elliot Smith: June 9, 2015
 Original Source:
 https://github.com/sparkfun/MMA8452_Accelerometer
 
-This file implements all functions of the MMA8452Q class. Functions here range
-from higher level stuff, like reading/writing MMA8452Q registers to low-level,
+This file implements all functions of the MMA8451Q class. Functions here range
+from higher level stuff, like reading/writing MMA8451Q registers to low-level,
 hardware I2C reads and writes.
 
 Development environment specifics:
@@ -21,7 +22,7 @@ local, and you've found our code helpful, please buy us a round!
 Distributed as-is; no warranty is given.
 ******************************************************************************/
 
-#include "MMA8452-Accelerometer-Library-Spark-Core.h"
+#include "MMA8451-Accelerometer-Library-Spark-Core.h"
 /* #include <Arduino.h> */	// Not needed for Spark Core
 /* #include <Wire.h> */		// Not needed for Spark Core
 
@@ -30,17 +31,17 @@ Distributed as-is; no warranty is given.
 //   supplied address into a private variable for future use.
 //   The variable addr should be either 0x1C or 0x1D, depending on which voltage
 //   the SA0 pin is tied to (GND or 3.3V respectively).
-MMA8452Q::MMA8452Q(byte addr)
+MMA8451Q::MMA8451Q(byte addr)
 {
 	address = addr; // Store address into private variable
 }
 
 // INITIALIZATION
-//	This function initializes the MMA8452Q. It sets up the scale (either 2, 4,
+//	This function initializes the MMA8451Q. It sets up the scale (either 2, 4,
 //	or 8g), output data rate, portrait/landscape detection and tap detection.
 //	It also checks the WHO_AM_I register to make sure we can communicate with
 //	the sensor. Returns a 0 if communication failed, 1 if successful.
-byte MMA8452Q::init(MMA8452Q_Scale fsr, MMA8452Q_ODR odr)
+byte MMA8451Q::init(MMA8451Q_Scale fsr, MMA8451Q_ODR odr)
 {
 	scale = fsr; // Haul fsr into our class variable, scale
 	
@@ -48,7 +49,7 @@ byte MMA8452Q::init(MMA8452Q_Scale fsr, MMA8452Q_ODR odr)
 	
 	byte c = readRegister(WHO_AM_I);  // Read WHO_AM_I register
 	
-	if (c != 0x2A) // WHO_AM_I should always be 0x2A
+	if (c != 0x1A) // WHO_AM_I should always be 0x1A for the 8451Q, 2A for the other
 	{
 		return 0;
 	}
@@ -67,30 +68,30 @@ byte MMA8452Q::init(MMA8452Q_Scale fsr, MMA8452Q_ODR odr)
 }
 
 // READ ACCELERATION DATA
-//  This function will read the acceleration values from the MMA8452Q. After
+//  This function will read the acceleration values from the MMA8451Q. After
 //	reading, it will update two triplets of variables:
-//		* int's x, y, and z will store the signed 12-bit values read out
+//		* int's x, y, and z will store the signed 14-bit values read out
 //		  of the acceleromter.
 //		* floats cx, cy, and cz will store the calculated acceleration from
-//		  those 12-bit values. These variables are in units of g's.
-void MMA8452Q::read()
+//		  those 14-bit values. These variables are in units of g's.
+void MMA8451Q::read()
 {
 	byte rawData[6];  // x/y/z accel register data stored here
 
 	readRegisters(OUT_X_MSB, rawData, 6);  // Read the six raw data registers into data array
 	
-	x = (rawData[0]<<8 | rawData[1]) >> 4;
-	y = (rawData[2]<<8 | rawData[3]) >> 4;
-	z = (rawData[4]<<8 | rawData[5]) >> 4;
-	cx = (float) x / (float)(1<<11) * (float)(scale);
-	cy = (float) y / (float)(1<<11) * (float)(scale);
-	cz = (float) z / (float)(1<<11) * (float)(scale);
+	x = (rawData[0]<<8 | rawData[1]) >> 6;
+	y = (rawData[2]<<8 | rawData[3]) >> 6;
+	z = (rawData[4]<<8 | rawData[5]) >> 6;
+	cx = (float) x / (float)(1<<13) * (float)(scale);
+	cy = (float) y / (float)(1<<13) * (float)(scale);
+	cz = (float) z / (float)(1<<13) * (float)(scale);
 }
 
 // CHECK IF NEW DATA IS AVAILABLE
-//	This function checks the status of the MMA8452Q to see if new data is availble.
+//	This function checks the status of the MMA8451Q to see if new data is availble.
 //	returns 0 if no new data is present, or a 1 if new data is available.
-byte MMA8452Q::available()
+byte MMA8451Q::available()
 {
 	return (readRegister(STATUS) & 0x08) >> 3;
 }
@@ -98,7 +99,7 @@ byte MMA8452Q::available()
 // SET FULL-SCALE RANGE
 //	This function sets the full-scale range of the x, y, and z axis accelerometers.
 //	Possible values for the fsr variable are SCALE_2G, SCALE_4G, or SCALE_8G.
-void MMA8452Q::setScale(MMA8452Q_Scale fsr)
+void MMA8451Q::setScale(MMA8451Q_Scale fsr)
 {
 	// Must be in standby mode to make changes!!!
 	byte cfg = readRegister(XYZ_DATA_CFG);
@@ -108,10 +109,10 @@ void MMA8452Q::setScale(MMA8452Q_Scale fsr)
 }
 
 // SET THE OUTPUT DATA RATE
-//	This function sets the output data rate of the MMA8452Q.
+//	This function sets the output data rate of the MMA8451Q.
 //	Possible values for the odr parameter are: ODR_800, ODR_400, ODR_200, 
 //	ODR_100, ODR_50, ODR_12, ODR_6, or ODR_1
-void MMA8452Q::setODR(MMA8452Q_ODR odr)
+void MMA8451Q::setODR(MMA8451Q_ODR odr)
 {
 	// Must be in standby mode to make changes!!!
 	byte ctrl = readRegister(CTRL_REG1);
@@ -127,7 +128,7 @@ void MMA8452Q::setODR(MMA8452Q_ODR odr)
 //			tap detection on that axis will be DISABLED.
 //		2. Set tap g's threshold. The lower 7 bits will set the tap threshold
 //			on that axis.
-void MMA8452Q::setupTap(byte xThs, byte yThs, byte zThs)
+void MMA8451Q::setupTap(byte xThs, byte yThs, byte zThs)
 {
 	// Set up single and double tap - 5 steps:
 	// for more info check out this app note:
@@ -161,10 +162,10 @@ void MMA8452Q::setupTap(byte xThs, byte yThs, byte zThs)
 }
 
 // READ TAP STATUS
-//	This function returns any taps read by the MMA8452Q. If the function 
+//	This function returns any taps read by the MMA8451Q. If the function 
 //	returns no new taps were detected. Otherwise the function will return the
 //	lower 7 bits of the PULSE_SRC register.
-byte MMA8452Q::readTap()
+byte MMA8451Q::readTap()
 {
 	byte tapStat = readRegister(PULSE_SRC);
 	if (tapStat & 0x80) // Read EA bit to check if a interrupt was generated
@@ -177,7 +178,7 @@ byte MMA8452Q::readTap()
 
 // SET UP PORTRAIT/LANDSCAPE DETECTION
 //	This function sets up portrait and landscape detection.
-void MMA8452Q::setupPL()
+void MMA8451Q::setupPL()
 {
 	// Must be in standby mode to make changes!!!
 	// For more info check out this app note:
@@ -189,10 +190,10 @@ void MMA8452Q::setupPL()
 }
 
 // READ PORTRAIT/LANDSCAPE STATUS
-//	This function reads the portrait/landscape status register of the MMA8452Q.
+//	This function reads the portrait/landscape status register of the MMA8451Q.
 //	It will return either PORTRAIT_U, PORTRAIT_D, LANDSCAPE_R, LANDSCAPE_L,
 //	or LOCKOUT. LOCKOUT indicates that the sensor is in neither p or ls.
-byte MMA8452Q::readPL()
+byte MMA8451Q::readPL()
 {
 	byte plStat = readRegister(PL_STATUS);
 	
@@ -204,7 +205,7 @@ byte MMA8452Q::readPL()
 
 // SET STANDBY MODE
 //	Sets the MMA8452 to standby mode. It must be in standby to change most register settings
-void MMA8452Q::standby()
+void MMA8451Q::standby()
 {
 	byte c = readRegister(CTRL_REG1);
 	writeRegister(CTRL_REG1, c & ~(0x01)); //Clear the active bit to go into standby
@@ -212,15 +213,15 @@ void MMA8452Q::standby()
 
 // SET ACTIVE MODE
 //	Sets the MMA8452 to active mode. Needs to be in this mode to output data
-void MMA8452Q::active()
+void MMA8451Q::active()
 {
 	byte c = readRegister(CTRL_REG1);
 	writeRegister(CTRL_REG1, c | 0x01); //Set the active bit to begin detection
 }
 
 // WRITE A SINGLE REGISTER
-// 	Write a single byte of data to a register in the MMA8452Q.
-void MMA8452Q::writeRegister(MMA8452Q_Register reg, byte data)
+// 	Write a single byte of data to a register in the MMA8451Q.
+void MMA8451Q::writeRegister(MMA8451Q_Register reg, byte data)
 {
 	writeRegisters(reg, &data, 1);
 }
@@ -228,7 +229,7 @@ void MMA8452Q::writeRegister(MMA8452Q_Register reg, byte data)
 // WRITE MULTIPLE REGISTERS
 //	Write an array of "len" bytes ("buffer"), starting at register "reg", and
 //	auto-incrmenting to the next.
-void MMA8452Q::writeRegisters(MMA8452Q_Register reg, byte *buffer, byte len)
+void MMA8451Q::writeRegisters(MMA8451Q_Register reg, byte *buffer, byte len)
 {
 	Wire.beginTransmission(address);
 	Wire.write(reg);
@@ -238,8 +239,8 @@ void MMA8452Q::writeRegisters(MMA8452Q_Register reg, byte *buffer, byte len)
 }
 
 // READ A SINGLE REGISTER
-//	Read a byte from the MMA8452Q register "reg".
-byte MMA8452Q::readRegister(MMA8452Q_Register reg)
+//	Read a byte from the MMA8451Q register "reg".
+byte MMA8451Q::readRegister(MMA8451Q_Register reg)
 {
 	Wire.beginTransmission(address);
 	Wire.write(reg);
@@ -253,9 +254,9 @@ byte MMA8452Q::readRegister(MMA8452Q_Register reg)
 }
 
 // READ MULTIPLE REGISTERS
-//	Read "len" bytes from the MMA8452Q, starting at register "reg". Bytes are stored
+//	Read "len" bytes from the MMA8451Q, starting at register "reg". Bytes are stored
 //	in "buffer" on exit.
-void MMA8452Q::readRegisters(MMA8452Q_Register reg, byte *buffer, byte len)
+void MMA8451Q::readRegisters(MMA8451Q_Register reg, byte *buffer, byte len)
 {
 	Wire.beginTransmission(address);
 	Wire.write(reg);

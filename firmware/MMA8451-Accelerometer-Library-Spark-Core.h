@@ -4,11 +4,12 @@ MMA8452-Accelerometer-Library-Spark-Core Library Header File
 Jim Lindblom @ SparkFun Electronics
 Original Creation Date: June 3, 2014
 Modified by Dan Dawson: December 19, 2014
+Modified by Elliot Smith: June 9, 2015
 Original Source:
 https://github.com/sparkfun/MMA8452_Accelerometer
 
-This file prototypes the MMA8452Q class, implemented in SFE_MMA8452Q.cpp. In
-addition, it defines every register in the MMA8452Q.
+This file prototypes the MMA8451Q class, implemented in SFE_MMA8451Q.cpp. In
+addition, it defines every register in the MMA8451Q.
 
 Development environment specifics:
 	IDE: Arduino 1.0.5
@@ -20,17 +21,17 @@ local, and you've found our code helpful, please buy us a round!
 Distributed as-is; no warranty is given.
 ******************************************************************************/
 
-#ifndef MMA8452-Accelerometer-Library-Spark-Core_h
-#define MMA8452-Accelerometer-Library-Spark-Core_h
+#ifndef MMA8451-Accelerometer-Library-Spark-Core_h
+#define MMA8451-Accelerometer-Library-Spark-Core_h
 
 /* #include <Arduino.h> */	// Not needed for Spark Core
 #include "application.h"	// Needed for Spark Core
 
 
 ///////////////////////////////////
-// MMA8452Q Register Definitions //
+// MMA8451Q Register Definitions //
 ///////////////////////////////////
-enum MMA8452Q_Register {
+enum MMA8451Q_Register {
 	STATUS = 0x00,
 	OUT_X_MSB = 0x01,
 	OUT_X_LSB = 0x02,
@@ -76,10 +77,10 @@ enum MMA8452Q_Register {
 };
 
 ////////////////////////////////
-// MMA8452Q Misc Declarations //
+// MMA8451Q Misc Declarations //
 ////////////////////////////////
-enum MMA8452Q_Scale {SCALE_2G = 2, SCALE_4G = 4, SCALE_8G = 8}; // Possible full-scale settings
-enum MMA8452Q_ODR {ODR_800, ODR_400, ODR_200, ODR_100, ODR_50, ODR_12, ODR_6, ODR_1}; // possible data rates
+enum MMA8451Q_Scale {SCALE_2G = 2, SCALE_4G = 4, SCALE_8G = 8}; // Possible full-scale settings
+enum MMA8451Q_ODR {ODR_800, ODR_400, ODR_200, ODR_100, ODR_50, ODR_12, ODR_6, ODR_1}; // possible data rates
 // Possible portrait/landscape settings
 #define PORTRAIT_U 0
 #define PORTRAIT_D 1
@@ -88,14 +89,14 @@ enum MMA8452Q_ODR {ODR_800, ODR_400, ODR_200, ODR_100, ODR_50, ODR_12, ODR_6, OD
 #define LOCKOUT 0x40
 
 ////////////////////////////////
-// MMA8452Q Class Declaration //
+// MMA8451Q Class Declaration //
 ////////////////////////////////
-class MMA8452Q
+class MMA8451Q
 {
 public:	
-    MMA8452Q(byte addr = 0x1D); // Constructor
+    MMA8451Q(byte addr = 0x1D); // Constructor
 	
-	byte init(MMA8452Q_Scale fsr = SCALE_2G, MMA8452Q_ODR odr = ODR_800);
+	byte init(MMA8451Q_Scale fsr = SCALE_2G, MMA8451Q_ODR odr = ODR_800);
     void read();
 	byte available();
 	byte readTap();
@@ -105,18 +106,18 @@ public:
 	float cx, cy, cz;
 private:
 	byte address;
-	MMA8452Q_Scale scale;
+	MMA8451Q_Scale scale;
 	
 	void standby();
 	void active();
 	void setupPL();
 	void setupTap(byte xThs, byte yThs, byte zThs);
-	void setScale(MMA8452Q_Scale fsr);
-	void setODR(MMA8452Q_ODR odr);
-	void writeRegister(MMA8452Q_Register reg, byte data);
-    void writeRegisters(MMA8452Q_Register reg, byte *buffer, byte len);
-	byte readRegister(MMA8452Q_Register reg);
-    void readRegisters(MMA8452Q_Register reg, byte *buffer, byte len);
+	void setScale(MMA8451Q_Scale fsr);
+	void setODR(MMA8451Q_ODR odr);
+	void writeRegister(MMA8451Q_Register reg, byte data);
+    void writeRegisters(MMA8451Q_Register reg, byte *buffer, byte len);
+	byte readRegister(MMA8451Q_Register reg);
+    void readRegisters(MMA8451Q_Register reg, byte *buffer, byte len);
 };
 
 #endif
