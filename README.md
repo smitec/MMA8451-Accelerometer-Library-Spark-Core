@@ -1,5 +1,12 @@
-Triple Axis Accelerometer Breakout - MMA8452Q Modified for use with the Spark Core
+Triple Axis Accelerometer Breakout - MMA8451Q Modified for use with the Spark Core
 =============================================
+
+This is a modified version of the Spark Library designed for use with the MMA8421Q which is the 14 bit version of the original library.
+
+Product page is here [http://www.adafruit.com/products/2019]
+
+Details below (including license) are form the original.
+
 
 [![Triple Axis Accelerometer Breakout - MMA8452Q](https://dlnmh9ip6v2uc.cloudfront.net/images/products/1/0/9/5/5/10955-01_i_ma.jpg)  
 *Triple Axis Accelerometer Breakout - MMA8452Q (SEN-10955)*](https://www.sparkfun.com/products/10955)
